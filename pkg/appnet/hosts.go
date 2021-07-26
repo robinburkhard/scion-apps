@@ -27,7 +27,7 @@ import (
 var (
 	resolveEtcHosts      Resolver = &hostsfileResolver{"/etc/hosts"}
 	resolveEtcScionHosts Resolver = &hostsfileResolver{"/etc/scion/hosts"}
-	resolveRains         Resolver = nil
+	resolveRains         Resolver = &rainsResolver{}
 )
 
 var (
