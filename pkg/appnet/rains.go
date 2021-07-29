@@ -76,9 +76,16 @@ func rainsQuery(server *snet.UDPAddr, hostname string) (*snet.SCIONAddress, erro
 	// - return HostNotFoundError error if all went well, but host not found
 	// TODO(chaehni): This call can sometimes cause a timeout even though the server is reachable (see issue #221)
 	// The timeout value has been decreased to counter this behavior until the problem is resolved.
-	reply, err := rains.Query(hostname, ctx, []rains.Type{qType}, qOpts, expire, timeout, server)
+
+	if !strings.HasSuffix(hostname, ".") {
+		hostname += "."
+	}
+	reply, err, ok := rains.Query(hostname, ctx, []rains.Type{qType}, qOpts, expire, timeout, server)
+	if !ok {
+		return nil, fmt.Errorf("problem reaching rains server to resolve name %q: %v", hostname, err)
+	}
 	if err != nil {
-		return nil, fmt.Errorf("address for host %q not found: %v", hostname, err)
+		return nil, &HostNotFoundError{hostname}
 	}
 	addrStr, ok := reply[qType]
 	if !ok {
